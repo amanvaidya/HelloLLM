@@ -64,4 +64,9 @@ ollama pull gemma:2b
 
 Using **Gemma:2B**, I received a response in **0.50 sec**.
 
+Sample Curl:
+curl -X POST "http://127.0.0.1:8000/chat/" \
+     -H "Content-Type: application/json" \
+     -d '{"prompt": "Hello, how are you?"}'
+
 Medium Post: https://medium.com/@amanvaidya700/hello-llm-my-first-llm-using-ollama-b2e35b45ae49

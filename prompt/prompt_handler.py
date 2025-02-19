@@ -11,16 +11,22 @@ current_date = datetime.datetime.now().date()
 
 llm_name = "gemma:2b"  # Removed Mistral
 
-def get_greeting_response():
-    prompt = """
-        I want you to greet how any first 
-        computer science program usually greets the world, 
-        followed with a smiley
-    """
+def get_greeting_response(user_prompt):
+    # prompt = """
+    #     I want you to greet how any first 
+    #     computer science program usually greets the world, 
+    #     followed with a smiley
+    # """
 
     response = ollama.chat(
         model=llm_name,
-        messages=[{"role": "user", "content": prompt}]
+        # messages=[{"role": "user", "content": prompt}]
+        messages=[{"role": "user", "content": user_prompt}] #takes user input as prompt
     )
 
     return response['message']['content']  # Ollama's response format
+
+if __name__ == "__main__":
+    user_prompt = input("Enter your prompt: ")  # Get user input
+    response = get_greeting_response(user_prompt)
+    print("\nLLM Response:", response)
