@@ -63,3 +63,5 @@ ollama pull gemma:2b
 ```
 
 Using **Gemma:2B**, I received a response in **0.50 sec**.
+
+Medium Post: https://medium.com/@amanvaidya700/hello-llm-my-first-llm-using-ollama-b2e35b45ae49
