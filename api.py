@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
 from prompt.prompt_handler import get_greeting_response
-from search import search_similar_method
+from embeddings.search import search_similar_method
 
 app = FastAPI()
 
