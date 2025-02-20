@@ -1,58 +1,50 @@
-import sqlite3
-import faiss
 import numpy as np
+import faiss
 import ollama
 import os
-from database import DB_PATH  # Import DB path
 
-VECTOR_DB_PATH = "faiss_index.bin"
-
-def get_all_methods():
-    """Fetch all method_code entries from the database."""
-    conn = sqlite3.connect(DB_PATH)
-    cursor = conn.cursor()
-    cursor.execute("SELECT id, method_code FROM method_tests")
-    methods = cursor.fetchall()
-    conn.close()
-    return methods  # List of (id, method_code)
+VECTOR_DB_PATH = "faiss_index.idx"
 
 def generate_embedding(text):
-    """Generate an embedding for the given text using Ollama."""
-    response = ollama.embeddings(model="gemma:2", prompt=text)
-    return np.array(response["embedding"], dtype="float32")  # Ensure float32 format for FAISS
+    response = ollama.embeddings(model="gemma:2b", prompt=text)
+    
+    # Ensure response contains 'embedding' key
+    if "embedding" not in response:
+        raise ValueError("Invalid embedding response from Ollama")
+    
+    embedding = np.array(response["embedding"], dtype=np.float32)
+    print(f"Generated embedding shape: {embedding.shape}")  # Debugging info
+    
+    return embedding
 
-def store_embeddings():
-    """Generate and store embeddings in FAISS, updating only for new methods."""
-    methods = get_all_methods()
-
-    if not methods:
-        print("No methods found in the database.")
-        return
-
-    dimension = 4096  # Adjust based on Gemma output size
-
-    # Load existing FAISS index or create a new one
+def load_or_create_index(embedding_dim):
     if os.path.exists(VECTOR_DB_PATH):
         index = faiss.read_index(VECTOR_DB_PATH)
-        existing_count = index.ntotal  # Existing embeddings count
+        print(f"Loaded existing FAISS index with dimension: {index.d}")
+        
+        # Ensure FAISS index matches embedding dimensions
+        if index.d != embedding_dim:
+            print("FAISS index dimension mismatch! Recreating index...")
+            index = faiss.IndexFlatL2(embedding_dim)  # Recreate index with correct dimension
     else:
-        index = faiss.IndexFlatL2(dimension)
-        existing_count = 0
+        print("Creating new FAISS index...")
+        index = faiss.IndexFlatL2(embedding_dim)
+    
+    return index
 
-    method_ids = []
-    new_methods = methods[existing_count:]  # Only get new methods
+def store_embeddings():
+    sample_text = "public int add(int a, int b) { return a + b; }"  # Replace with actual method code
+    embedding = generate_embedding(sample_text)
 
-    if not new_methods:
-        print("No new embeddings to store.")
-        return
+    # Load existing or create new FAISS index
+    index = load_or_create_index(embedding.shape[0])
 
-    for method_id, method_code in new_methods:
-        embedding = generate_embedding(method_code)
-        index.add(np.array([embedding]))  # Add only new embeddings
-        method_ids.append(method_id)
+    index.add(np.array([embedding]))  # Add only new embeddings
+    print("Embedding added successfully.")
 
-    faiss.write_index(index, VECTOR_DB_PATH)  # Save updated FAISS index
-    print(f"Stored {len(new_methods)} new embeddings.")
+    # Save updated FAISS index
+    faiss.write_index(index, VECTOR_DB_PATH)
+    print("FAISS index saved.")
 
 if __name__ == "__main__":
     store_embeddings()

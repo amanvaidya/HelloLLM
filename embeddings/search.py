@@ -1,51 +1,34 @@
-import sqlite3
 import faiss
 import numpy as np
 import ollama
-from db.database import DB_PATH  # Import SQLite DB path
-from generate_embedding import VECTOR_DB_PATH  # FAISS index path
+import logging
 
-def get_unit_test_by_id(method_id):
-    """Fetch unit test code from SQLite by method ID."""
-    conn = sqlite3.connect(DB_PATH)
-    cursor = conn.cursor()
-    cursor.execute("SELECT test_code FROM method_tests WHERE id = ?", (method_id,))
-    result = cursor.fetchone()
-    conn.close()
-    return result[0] if result else None
+# Configure logging
+logging.basicConfig(level=logging.INFO)
 
-def generate_embedding(text):
-    """Generate an embedding for the given method using Ollama."""
-    response = ollama.embeddings(model="gemma:2", prompt=text)
-    return np.array(response["embedding"], dtype="float32")
+INDEX_PATH = "embeddings/faiss_index.idx"
+SIMILARITY_THRESHOLD = 0.6  # Reduced from 0.8 to 0.6
 
-def search_similar_method(method_code, top_k=1):
-    """Find the most similar method and return its unit test."""
-    # Load FAISS index
-    index = faiss.read_index(VECTOR_DB_PATH)
+def generate_embedding(text: str) -> np.ndarray:
+    response = ollama.embeddings(model="gemma:2b", prompt=text)
+    return np.array(response["embedding"], dtype=np.float32)
 
-    # Generate embedding for the input method
+def search_similar_method(method_code: str):
+    logging.info("Generating embedding for search query...")
     query_embedding = generate_embedding(method_code).reshape(1, -1)
-
-    # Search for the most similar method (top_k=1)
-    distances, indices = index.search(query_embedding, top_k)
-
-    # Get the best match's ID
-    best_match_id = indices[0][0]
-
-    if best_match_id == -1:
-        print("No relevant test found.")
-        return None
-
-    # Fetch and return the corresponding unit test
-    return get_unit_test_by_id(best_match_id)
-
-if __name__ == "__main__":
-    # Example search
-    new_method = "def multiply(a, b): return a * b"
-    result = search_similar_method(new_method)
-
-    if result:
-        print("Closest matching unit test:\n", result)
+    
+    logging.info("Loading FAISS index...")
+    index = faiss.read_index(INDEX_PATH)
+    
+    logging.info("Searching for similar embeddings...")
+    distances, indices = index.search(query_embedding, k=1)  # Get closest match
+    
+    logging.info(f"Search results - Distance: {distances}, Indices: {indices}")
+    
+    if distances[0][0] < SIMILARITY_THRESHOLD:
+        logging.info("Similar test case found, fetching...")
+        # Fetch and return the stored test case (implement retrieval logic)
+        return "Mock Test Case: Similar test case found."
     else:
-        print("No similar unit test found.")
+        logging.warning("No similar test case found.")
+        return None
