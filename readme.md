@@ -1,136 +1,182 @@
-My First LLM using Ollama
+# My First LLM Using Ollama
 
-Tried with OpenAI, but was getting quota expired, so downloaded Ollama to run prompts offline. 
-Since it was my first LLM-based model, I was trying for a text-based model only.
+## Day 1: Setting Up Ollama
+Initially, I tried using OpenAI, but I ran into **quota limits**, so I switched to **Ollama** to run prompts **offline**.  
+Since this was my **first LLM-based model**, I started with a **text-based** approach.  
 
-Since Ollama installs locally, no API key is required.
+Ollama runs **locally**, so **no API key is required**. 🚀  
 
-## Installation
+---
 
-You can install Ollama using Homebrew or download it directly:
+## Installation  
+You can install Ollama using **Homebrew** or download it manually:  
 
 ```sh
 brew install ollama
 ```
+Or download it from: [Ollama Downloads](https://ollama.com/download)  
 
-Or download from: [https://ollama.com/download](https://ollama.com/download)
-
-## Verify Installation
-
-Check if Ollama is installed correctly:
-
+### Verify Installation  
+Check if Ollama is installed correctly:  
 ```sh
 ollama --version
 ```
 
-## Downloading Models
+---
 
-Once installed, you can download models like:
-
+## Downloading Models  
+Once installed, download models like:  
 ```sh
-ollama pull mistral  # (4.1 GB Download)
+ollama pull mistral  # (~4.1 GB Download)
 ollama pull llama2
 ```
 
-## Running Ollama
+---
 
-Start the Ollama service in the background:
-
+## Running Ollama  
+Start the Ollama service in the background:  
 ```sh
 ollama serve
 ```
-
-Verify if it's running:
-
+Verify if it's running:  
 ```sh
 ollama list
 ```
 
-## Switching to a Lighter Model
+---
 
-Since Mistral was heavy (4.1 GB) and took **25.68 sec** to execute, I moved to a lighter model: **Gemma:2B**.
+## Switching to a Lighter Model  
+Since **Mistral** was **too heavy (4.1 GB)** and took **~25.68 sec** to execute, I switched to **Gemma:2B**, which is **lighter and faster**.  
 
-### Uninstall Mistral
-
+### Uninstall Mistral  
 ```sh
 ollama rm mistral
 ```
 
-### Install Gemma:2B
-
+### Install Gemma:2B  
 ```sh
 ollama pull gemma:2b
 ```
+With **Gemma:2B**, I got responses in **~0.50 sec**.  
 
-Using **Gemma:2B**, I received a response in **0.50 sec**.
+---
 
-Sample Curl:
-curl -X POST "http://127.0.0.1:8000/chat/" \
-     -H "Content-Type: application/json" \
-     -d '{"prompt": "Hello, how are you?"}'
-
-Medium Post: https://medium.com/@amanvaidya700/hello-llm-my-first-llm-using-ollama-b2e35b45ae49
-
-Day-2 Update:
-Thought, why not train my model to generate unit test cases? 
-Step 1: DB Connectivity and sample data insertion
-Connected it to an SQLite3 DB and inserted some data. 
-It is not a very big set just one line for java, python and js
-Initially, my prompt was handling only one response before exiting—fixed that too!
-
-Step 2: Generate and Store Embeddings for Retrieval
-Install FAISS or ChromaDB for vector storage:
-```
-pip3.12 install faiss-cpu chromadb numpy
-```
-***Browine point if your system is also not installing packages using pip use --break-system-packages in the end
-```
-pip3.12 install faiss-cpu chromadb numpy --break-system-packages
+## Testing with API  
+Example API call:  
+```sh
+curl -X POST "http://127.0.0.1:8000/chat/"      -H "Content-Type: application/json"      -d '{"prompt": "Hello, how are you?"}'
 ```
 
-break up of generate_embedding.py:
-🔹 How It Works (Step by Step)
-	1.	Fetch all method codes from method_tests table in SQLite.
-	2.	Check if embeddings already exist (stored in FAISS).
-	3.	Generate embeddings using Ollama (Gemma 2) for new methods.
-	4.	Store these embeddings in a FAISS index (faiss_index.bin).
-	5.	Update the FAISS index only if new methods are added (prevents regenerating embeddings every time the app starts).
-📝 Breakdown of Key Functions
+📌 **Medium Post**: [Hello LLM: My First LLM Using Ollama](https://medium.com/@amanvaidya700/hello-llm-my-first-llm-using-ollama-b2e35b45ae49)  
 
-1️⃣ get_all_methods()
-	•	Fetches all method IDs and their code from the database.
+---
 
-2️⃣ generate_embedding(text)
-	•	Calls Ollama’s embeddings() API to generate a vector representation of the method code.
+# Day 2: Training the Model for Unit Test Generation  
 
-3️⃣ store_embeddings()
-	•	Loads existing embeddings from FAISS (if available).
-	•	Checks if new methods exist and only embeds new ones.
-	•	Saves the updated FAISS index for retrieval later.
-📌 Why is This Needed?
-	•	Storing embeddings makes searching fast instead of parsing every method manually.
-	•	Precomputed embeddings allow retrieval using similarity search.
-	•	FAISS optimizes lookup speed for large datasets.
+## Step 1: Database Connectivity & Sample Data  
+🔹 Connected to an **SQLite3 database** and inserted **sample method-test pairs** for **Java, Python, and JavaScript**.  
+🔹 Initially, my prompt was handling only **one response before exiting**—fixed that!  
 
-Next Step: Implement search.py to Retrieve Similar Unit Tests
+---
 
-Complete Breakdown of search.py
-This script searches for the most similar method in the database and returns the corresponding unit test using FAISS and Ollama embeddings.
+## Step 2: Generating & Storing Embeddings for Retrieval  
+To enable **efficient test case retrieval**, we store method embeddings using **FAISS**.  
 
-🔹 High-Level Steps
-	1.	User provides a new method (as a string).
-	2.	Generate an embedding for the method using Ollama.
-	3.	Load the FAISS index (precomputed embeddings of stored methods).
-	4.	Find the most similar stored method using FAISS.
-	5.	Retrieve the corresponding unit test from SQLite.
-📌 Function Breakdown
+### Install FAISS or ChromaDB for Vector Storage  
+```sh
+pip install faiss-cpu chromadb numpy
+```
+📌 **If pip fails to install packages**, use:  
+```sh
+pip install faiss-cpu chromadb numpy --break-system-packages
+```
 
-1️⃣ get_unit_test_by_id(method_id)
-	•	Fetches the unit test from the SQLite database for a given method_id.
+---
 
-📌 What This Script Does
+### 📌 How `generate_embedding.py` Works  
 
-✔ Embeds the new method using Ollama
-✔ Finds the most similar stored method using FAISS
-✔ Fetches the corresponding unit test from SQLite
-✔ Efficient search using vector embeddings
+1️⃣ **Fetch all methods** from the SQLite database.  
+2️⃣ **Check if embeddings exist** in FAISS (avoid redundant embedding generation).  
+3️⃣ **Generate embeddings** using **Ollama (Gemma 2)** for new methods.  
+4️⃣ **Store embeddings** in a FAISS index (`faiss_index.bin`).  
+5️⃣ **Update FAISS** only when **new methods** are added.  
+
+---
+
+### 🔍 Breakdown of Key Functions  
+
+**1️⃣ `get_all_methods()`**  
+🔹 Fetches **all method codes** from the database.  
+
+**2️⃣ `generate_embedding(text)`**  
+🔹 Calls Ollama’s **embeddings API** to generate vector representations.  
+
+**3️⃣ `store_embeddings()`**  
+🔹 Loads **existing embeddings** from FAISS.  
+🔹 **Checks for new methods** and only embeds those.  
+🔹 Saves the **updated FAISS index** for fast retrieval.  
+
+---
+
+### 📌 Why Store Embeddings?  
+
+✅ **Faster search** instead of parsing every method manually.  
+✅ **Precomputed embeddings** allow quick **similarity-based retrieval**.  
+✅ **FAISS optimizes** lookup speeds for **large datasets**.  
+
+---
+
+## Step 3: Implementing `search.py` to Retrieve Similar Unit Tests  
+
+This script **searches for the most similar method** in the database and **retrieves its corresponding unit test** using FAISS + Ollama embeddings.  
+
+### 🔹 High-Level Steps  
+
+1️⃣ **User provides a method** (as a string).  
+2️⃣ **Generate an embedding** using Ollama.  
+3️⃣ **Load the FAISS index** (precomputed method embeddings).  
+4️⃣ **Find the most similar method** using FAISS.  
+5️⃣ **Retrieve the corresponding unit test** from SQLite.  
+
+---
+
+### 🔍 Breakdown of `search.py` Functions  
+
+**1️⃣ `get_unit_test_by_id(method_id)`**  
+🔹 Fetches the **unit test** for the most similar method **from SQLite**.  
+
+---
+
+## 📌 What `search.py` Does  
+
+✔ **Embeds** the new method using Ollama.  
+✔ **Finds the most similar stored method** using FAISS.  
+✔ **Fetches the corresponding unit test** from SQLite.  
+✔ **Efficient search** using vector embeddings.  
+
+---
+
+## Step 4: Exposing `search.py` via an API Endpoint  
+
+### Updated `api.py`
+Now, we added a **new API endpoint** `/generate-test/` to fetch test cases.  
+
+#### Example Request  
+```sh
+curl -X POST "http://127.0.0.1:8000/generate-test/"      -H "Content-Type: application/json"      -d '{"language": "java", "method_code": "public int add(int a, int b) { return a + b; }"}'
+```
+
+📌 If a **matching test case** is found, it returns the test.  
+📌 If **no match is found**, we can **auto-generate** a test case using LLM.  
+
+---
+
+## Next Steps 🚀  
+
+✅ **Step 1:** Set up SQLite DB + sample test cases.  
+✅ **Step 2:** Store & retrieve method embeddings using FAISS.  
+✅ **Step 3:** Implement search functionality for similar unit tests.  
+✅ **Step 4:** Expose search via API.  
+🔜 **Step 5:** Auto-generate test cases using Ollama when no match is found.  
+
+Stay tuned for more updates! 🎯🚀  
