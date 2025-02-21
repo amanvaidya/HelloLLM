@@ -180,3 +180,34 @@ curl -X POST "http://127.0.0.1:8000/generate-test/"      -H "Content-Type: appli
 🔜 **Step 5:** Auto-generate test cases using Ollama when no match is found.  
 
 Stay tuned for more updates! 🎯🚀  
+
+
+# Day 3: Training & Exploring Fine-Tuning Options
+
+Training the Model for Test Case Generation
+
+Continued training the model by generating test cases using Ollama.
+
+Ensured embeddings were properly stored and retrieved.
+
+Attempting to Fine-Tune Ollama
+
+Tried creating a Modelfile to fine-tune gemma:2b.
+
+Encountered an error: Ollama does not support fine-tuning natively.
+
+Since fine-tuning is required, we are now exploring external fine-tuning options.
+
+Next Steps
+
+🔹 Integrate Ollama with fine-tuning models like:
+
+Axolotl (QLoRA-based fine-tuning)
+
+Hugging Face’s PEFT + LoRA🔹 Continue generating test cases and refine retrieval.
+
+Next Steps
+
+✅ Step 1: Set up SQLite DB + sample test cases.✅ Step 2: Store & retrieve method embeddings using FAISS.✅ Step 3: Implement search functionality for similar unit tests.✅ Step 4: Expose search via API.✅ Step 5: Train model for test generation.🔜 Step 6: Fine-tune using external tools (Axolotl, Hugging Face PEFT).
+
+Stay tuned for more updates!
