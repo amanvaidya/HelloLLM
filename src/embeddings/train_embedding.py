@@ -5,17 +5,32 @@ import logging
 import numpy as np
 import faiss
 import sqlite3
+from concurrent.futures import ThreadPoolExecutor, as_completed
+from queue import Queue
+from threading import Lock
 from config.settings import DB_PATH
 
 logging.basicConfig(level=logging.INFO)
 
-MODEL_NAME = "gemma:2b"  # Using base Gemma:2b as no adapter is specified
+MODEL_NAME = "gemma:2b"
 TRAINING_DATA_PATH = "training_data.jsonl"
 EMBEDDING_DIR = "embeddings"
 EMBEDDING_DATA_PATH = os.path.join(EMBEDDING_DIR, "training_data_embedding.jsonl")
 INDEX_PATH = os.path.join(EMBEDDING_DIR, "faiss_index.idx")
 
-def store_embeddings():
+def generate_embedding(item, index, total):
+    prompt = item.get("prompt")
+    try:
+        embedding_response = ollama.embeddings(model=MODEL_NAME, prompt=prompt)
+        embedding = np.array(embedding_response["embedding"], dtype=np.float32)
+        item["embedding"] = embedding.tolist()
+        logging.info(f"Processed new embedding for prompt {index+1}/{total}")
+        return (item, embedding)
+    except Exception as e:
+        logging.error(f"Error generating embedding for prompt '{prompt}': {e}")
+        return None
+
+def store_embeddings(num_threads=4):
     # Ensure directories exist
     os.makedirs(EMBEDDING_DIR, exist_ok=True)
 
@@ -35,30 +50,41 @@ def store_embeddings():
             existing_embeddings = {item["prompt"]: item for item in existing_data}
         logging.info(f"Loaded {len(existing_embeddings)} existing embeddings.")
 
-    # Generate embeddings for new data
-    new_data = []
-    embeddings = []
-    for i, item in enumerate(data):
-        prompt = item.get("prompt")
-        if prompt in existing_embeddings:
-            embeddings.append(np.array(existing_embeddings[prompt]["embedding"], dtype=np.float32))
-            continue
+    # Identify prompts needing new embeddings
+    new_items = [item for item in data if item.get("prompt") not in existing_embeddings]
+    embeddings = [np.array(existing_embeddings[item["prompt"]]["embedding"], dtype=np.float32) 
+                  for item in data if item["prompt"] in existing_embeddings]
+    
+    if not new_items:
+        logging.info("No new embeddings to generate.")
+    else:
+        # Thread-safe collections
+        result_queue = Queue()
+        lock = Lock()
 
-        try:
-            embedding_response = ollama.embeddings(model=MODEL_NAME, prompt=prompt)
-            embedding = np.array(embedding_response["embedding"], dtype=np.float32)
-            item["embedding"] = embedding.tolist()
+        # Generate embeddings in parallel
+        with ThreadPoolExecutor(max_workers=num_threads) as executor:
+            future_to_item = {executor.submit(generate_embedding, item, i, len(data)): i 
+                            for i, item in enumerate(new_items)}
+            
+            for future in as_completed(future_to_item):
+                result = future.result()
+                if result:
+                    item, embedding = result
+                    result_queue.put((item, embedding))
+
+        # Collect results
+        new_data = []
+        while not result_queue.empty():
+            item, embedding = result_queue.get()
             new_data.append(item)
             embeddings.append(embedding)
-            logging.info(f"Processed new embedding for prompt {i+1}/{len(data)}")
-        except Exception as e:
-            logging.error(f"Error generating embedding for prompt '{prompt}': {e}")
 
-    # Merge and save embeddings
-    final_data = list(existing_embeddings.values()) + new_data
-    with open(EMBEDDING_DATA_PATH, "w") as f:
-        json.dump(final_data, f, indent=4)
-    logging.info(f"Saved {len(final_data)} embeddings to {EMBEDDING_DATA_PATH}")
+        # Merge and save embeddings
+        final_data = list(existing_embeddings.values()) + new_data
+        with open(EMBEDDING_DATA_PATH, "w") as f:
+            json.dump(final_data, f, indent=4)
+        logging.info(f"Saved {len(final_data)} embeddings to {EMBEDDING_DATA_PATH}")
 
     # Build and save FAISS index
     if embeddings:

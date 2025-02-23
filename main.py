@@ -22,7 +22,7 @@ def run_full_setup(run_api=True):
 
     # Step 3: Insert bulk data (80,000 test cases)
     print("Inserting bulk data (this may take a while)...")
-    insert_bulk_data(total_cases=1000000)
+    insert_bulk_data(total_cases=1)
 
     # Step 4: Export data to JSONL
     print("Exporting training data to JSONL...")
