@@ -85,9 +85,9 @@ How embed_methods.py Works
 </ol>
 Key Functions
 <ol>
-    1. get_all_methods(): Retrieves all method codes from the database.
-    2. generate_embedding(text): Uses Ollama’s embeddings API to create vectors.
-    3. store_embeddings(): Loads existing embeddings, adds new ones, and saves the updated index.
+    <li>1. get_all_methods(): Retrieves all method codes from the database.</li>
+    <li>2. generate_embedding(text): Uses Ollama’s embeddings API to create vectors.</li>
+    <li>3. store_embeddings(): Loads existing embeddings, adds new ones, and saves the updated index.</li>
 </ol>
 Why Store Embeddings?
 <ol>
