@@ -76,20 +76,25 @@ pip install faiss-cpu chromadb numpy --break-system-packages
 ```
 
 How embed_methods.py Works
+<ol>
    1. Fetch all methods from the SQLite database.
    2. Check if embeddings exist in FAISS to avoid redundancy.
    3. Generate embeddings for new methods using Ollama (Gemma:2B).
    4. Store embeddings in a FAISS index (faiss_index.bin).
    5. Update FAISS only for new methods.
+</ol>
 Key Functions
+<ol>
     1. get_all_methods(): Retrieves all method codes from the database.
     2. generate_embedding(text): Uses Ollama’s embeddings API to create vectors.
     3. store_embeddings(): Loads existing embeddings, adds new ones, and saves the updated index.
+</ol>
 Why Store Embeddings?
+<ol>
     1. Faster similarity searches.
     2. Precomputed embeddings enable quick retrieval.
     3. FAISS optimizes lookups for large datasets.
-
+<ol>
 Step 3: Implementing retrieve_or_generate.py for Similar Unit Tests
 This script finds the most similar method in the database and retrieves its unit test using FAISS and Ollama embeddings.
 
