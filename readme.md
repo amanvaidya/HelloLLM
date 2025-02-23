@@ -142,14 +142,14 @@ Next Steps
 Explore fine-tuning with:
 Axolotl (QLoRA-based).
 Hugging Face PEFT + LoRA.
-Refine test case generation and retrieval.
-Progress
-✅ Step 1: Set up SQLite DB + sample test cases.
-✅ Step 2: Store & retrieve embeddings with FAISS.
-✅ Step 3: Implement search for similar unit tests.
-✅ Step 4: Expose search via API.
-✅ Step 5: Train model for test generation.
-🔜 Step 6: Fine-tune using external tools.
+Refine test case generation and retrieval.<br/>
+Progress<br/>
+✅ Step 1: Set up SQLite DB + sample test cases.<br/>
+✅ Step 2: Store & retrieve embeddings with FAISS.<br/>
+✅ Step 3: Implement search for similar unit tests.<br/>
+✅ Step 4: Expose search via API.<br/>
+✅ Step 5: Train model for test generation.<br/>
+🔜 Step 6: Fine-tune using external tools.<br/>
 # Day 4: Auto-Generating Test Cases When No Match Found
 Today, I extended the system to handle cases where no similar method exists in the database.<br/>
 
