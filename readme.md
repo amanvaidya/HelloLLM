@@ -14,7 +14,7 @@ Install Ollama via **Homebrew** or manually:
 ```sh
 brew install ollama
 
-Or download from: <a href="https://ollama.com/download" target="_blank">Ollama Downloads</a>
+Or download from: https://ollama.com/download
 ```
 Verify Installation
 Confirm it’s working:
@@ -77,11 +77,11 @@ pip install faiss-cpu chromadb numpy --break-system-packages
 
 How embed_methods.py Works
 <ol>
-   1. Fetch all methods from the SQLite database.
-   2. Check if embeddings exist in FAISS to avoid redundancy.
-   3. Generate embeddings for new methods using Ollama (Gemma:2B).
-   4. Store embeddings in a FAISS index (faiss_index.bin).
-   5. Update FAISS only for new methods.
+   <li>Fetch all methods from the SQLite database.</li>
+   <li>Check if embeddings exist in FAISS to avoid redundancy.</li>
+   <li>Generate embeddings for new methods using Ollama (Gemma:2B).</li>
+   <li>Store embeddings in a FAISS index (faiss_index.bin).</li>
+   <li>Update FAISS only for new methods.</li>
 </ol>
 Key Functions
 <ol>
@@ -120,3 +120,33 @@ curl -X POST "http://127.0.0.1:8000/generate-test/" -H "Content-Type: applicatio
 
 <li> Returns a matching test if found.</li>
 <li> Plans to auto-generate tests for unmatched methods (see Day 4).</li>
+📌 Medium Post: <a href="https://medium.com/@amanvaidya700/training-my-llm-to-generate-unit-tests-using-ollama-day-2-progress-d29994e76a2b" target="_blank">Training My LLM to Generate Unit Tests Using Ollama</a>
+
+
+Next Steps 🚀
+✅ Step 1: Set up SQLite DB + sample test cases.
+✅ Step 2: Store & retrieve embeddings with FAISS.
+✅ Step 3: Implement search for similar unit tests.
+✅ Step 4: Expose search via API.
+🔜 Step 5: Auto-generate test cases when no match is found.
+
+# Day 3: Training & Exploring Fine-Tuning Options
+Training for Test Case Generation
+Continued generating test cases with Ollama.
+Validated embedding storage and retrieval.
+Attempting to Fine-Tune Ollama
+Created a Modelfile to fine-tune Gemma:2B.
+Hit a roadblock: Ollama doesn’t support native fine-tuning.
+Shifted focus to external fine-tuning tools.
+Next Steps
+Explore fine-tuning with:
+Axolotl (QLoRA-based).
+Hugging Face PEFT + LoRA.
+Refine test case generation and retrieval.
+Progress
+✅ Step 1: Set up SQLite DB + sample test cases.
+✅ Step 2: Store & retrieve embeddings with FAISS.
+✅ Step 3: Implement search for similar unit tests.
+✅ Step 4: Expose search via API.
+✅ Step 5: Train model for test generation.
+🔜 Step 6: Fine-tune using external tools.
