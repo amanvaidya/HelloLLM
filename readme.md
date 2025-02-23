@@ -94,7 +94,7 @@ Why Store Embeddings?
     <li> Faster similarity searches.</li>
     <li>Precomputed embeddings enable quick retrieval.</li>
     <li> FAISS optimizes lookups for large datasets.</li>
-<ol>
+</ol>
 Step 3: Implementing retrieve_or_generate.py for Similar Unit Tests
 This script finds the most similar method in the database and retrieves its unit test using FAISS and Ollama embeddings.
 
