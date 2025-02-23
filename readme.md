@@ -85,32 +85,32 @@ How embed_methods.py Works
 </ol>
 Key Functions
 <ol>
-    <li>1. get_all_methods(): Retrieves all method codes from the database.</li>
-    <li>2. generate_embedding(text): Uses Ollama’s embeddings API to create vectors.</li>
-    <li>3. store_embeddings(): Loads existing embeddings, adds new ones, and saves the updated index.</li>
+    <li>get_all_methods(): Retrieves all method codes from the database.</li>
+    <li>generate_embedding(text): Uses Ollama’s embeddings API to create vectors.</li>
+    <li>store_embeddings(): Loads existing embeddings, adds new ones, and saves the updated index.</li>
 </ol>
 Why Store Embeddings?
 <ol>
-    1. Faster similarity searches.
-    2. Precomputed embeddings enable quick retrieval.
-    3. FAISS optimizes lookups for large datasets.
+    <li> Faster similarity searches.</li>
+    <li>Precomputed embeddings enable quick retrieval.</li>
+    <li> FAISS optimizes lookups for large datasets.</li>
 <ol>
 Step 3: Implementing retrieve_or_generate.py for Similar Unit Tests
 This script finds the most similar method in the database and retrieves its unit test using FAISS and Ollama embeddings.
 
 High-Level Steps
-    1. User submits a method (string).
-    2. Generate its embedding with Ollama.
-    3. Load the FAISS index.
-    4. Identify the most similar method via FAISS.
-    5. Retrieve its unit test from SQLite.
+    <li>  User submits a method (string).
+    <li>  Generate its embedding with Ollama.</li>
+    <li>  Load the FAISS index.</li>
+    <li>  Identify the most similar method via FAISS.</li>
+    <li>  Retrieve its unit test from SQLite.</li>
 Key Function
-    1. get_unit_test_by_id(method_id): Fetches the unit test from SQLite.
+    <li>  get_unit_test_by_id(method_id): Fetches the unit test from SQLite.</li>
 What retrieve_or_generate.py Does
-    1. Embeds the input method.
-    2. Finds the closest match in FAISS.
-    3. Returns the associated unit test.
-Step 4: Exposing retrieve_or_generate.py via API
+    <li>  Embeds the input method.</li>
+    <li> Finds the closest match in FAISS.</li>
+    <li>  Returns the associated unit test.</li>
+Step 4: Exposing retrieve_or_generate.py via API</li>
 Added a /generate-test/ endpoint to testgen_api.py.
 
 Example Request
@@ -118,5 +118,5 @@ Example Request
 curl -X POST "http://127.0.0.1:8000/generate-test/" -H "Content-Type: application/json" -d '{"language": "java", "method_code": "public int add(int a, int b) { return a + b; }"}'
 ```
 
-1. Returns a matching test if found.
-2. Plans to auto-generate tests for unmatched methods (see Day 4).
+<li> Returns a matching test if found.</li>
+<li> Plans to auto-generate tests for unmatched methods (see Day 4).</li>
