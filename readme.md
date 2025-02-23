@@ -110,7 +110,7 @@ What retrieve_or_generate.py Does
     <li>  Embeds the input method.</li>
     <li> Finds the closest match in FAISS.</li>
     <li>  Returns the associated unit test.</li>
-Step 4: Exposing retrieve_or_generate.py via API</li>
+Step 4: Exposing retrieve_or_generate.py via API<br/>
 Added a /generate-test/ endpoint to testgen_api.py.
 
 Example Request
@@ -121,14 +121,14 @@ curl -X POST "http://127.0.0.1:8000/generate-test/" -H "Content-Type: applicatio
 <li> Returns a matching test if found.</li>
 <li> Plans to auto-generate tests for unmatched methods (see Day 4).</li>
 📌 Medium Post: <a href="https://medium.com/@amanvaidya700/training-my-llm-to-generate-unit-tests-using-ollama-day-2-progress-d29994e76a2b" target="_blank">Training My LLM to Generate Unit Tests Using Ollama</a>
+<br/>
 
-
-Next Steps 🚀
-✅ Step 1: Set up SQLite DB + sample test cases.
-✅ Step 2: Store & retrieve embeddings with FAISS.
-✅ Step 3: Implement search for similar unit tests.
-✅ Step 4: Expose search via API.
-🔜 Step 5: Auto-generate test cases when no match is found.
+Next Steps 🚀<br/>
+✅ Step 1: Set up SQLite DB + sample test cases.<br/>
+✅ Step 2: Store & retrieve embeddings with FAISS.<br/>
+✅ Step 3: Implement search for similar unit tests.<br/>
+✅ Step 4: Expose search via API.<br/>
+🔜 Step 5: Auto-generate test cases when no match is found.<br/>
 
 # Day 3: Training & Exploring Fine-Tuning Options
 Training for Test Case Generation
@@ -150,3 +150,42 @@ Progress
 ✅ Step 4: Expose search via API.
 ✅ Step 5: Train model for test generation.
 🔜 Step 6: Fine-tune using external tools.
+# Day 4: Auto-Generating Test Cases When No Match Found
+Today, I extended the system to handle cases where no similar method exists in the database.<br/>
+
+Step 5: Implementing Auto-Generation<br/>
+Updated retrieve_or_generate.py to:<br/>
+Search for a similar method using FAISS.<br/>
+If no match (e.g., similarity below a threshold), use Ollama (Gemma:2B) to generate a test case.<br/>
+Store the new method-test pair in SQLite and update FAISS embeddings.<br/>
+How It Works<br/>
+Input method is embedded and compared against the FAISS index.<br/>
+If the similarity score is too low (e.g., <0.8), Ollama generates a test case.<br/>
+Example prompt to Ollama:<br/>
+```
+"Generate a unit test for this Java method: public int add(int a, int b) { return a + b; }"
+```
+Response stored in SQLite and FAISS for future retrieval.<br/>
+Example API Call<br/>
+```
+curl -X POST "http://127.0.0.1:8000/generate-test/" -H "Content-Type: application/json" -d '{"language": "java", "method_code": "public int multiply(int x, int y) { return x * y; }"}'
+```
+If no match, returns an auto-generated test like:
+```
+@Test
+public void testMultiply() {
+    assertEquals(6, multiply(2, 3));
+    assertEquals(0, multiply(5, 0));
+}
+```
+Challenges<br/>
+Ensuring generated tests are accurate and idiomatic.<br/>
+Tuning the similarity threshold for triggering auto-generation.<br/>
+Next Steps<br/>
+✅ Step 1: Set up SQLite DB + sample test cases.<br/>
+✅ Step 2: Store & retrieve embeddings with FAISS.<br/>
+✅ Step 3: Implement search for similar unit tests.<br/>
+✅ Step 4: Expose search via API.<br/>
+✅ Step 5: Auto-generate test cases when no match is found.<br/>
+🔜 Step 6: Fine-tune Ollama externally for better test generation.<br/>
+Stay tuned! 🎯🚀
