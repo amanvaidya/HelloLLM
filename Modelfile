@@ -1,2 +1,0 @@
-FROM gemma:2b
-ADAPTER my-test-model

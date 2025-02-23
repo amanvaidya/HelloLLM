@@ -1,2 +1,4 @@
-embeddings/training_data_embedding.py
-embeddings/training_data.jsonl
+src/generators/data_generator.py
+/training_data.jsonl
+/training_data.db
+/training_data.db-journal

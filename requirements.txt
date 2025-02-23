@@ -1,8 +1,7 @@
-ollama                  # For model interaction
-faiss-cpu               # Vector similarity search (optional)
-chromadb                # Alternative to FAISS for embeddings
-fastapi                 # API framework (if needed)
-uvicorn                 # ASGI server for FastAPI
-pytest                  # Unit testing framework
+fastapi
+pydantic
+uvicorn
+ollama
+sqlite3
+faiss-cpu  # Add for FAISS support (use faiss-gpu if you have a GPU)
 numpy
-requests
