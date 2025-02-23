@@ -1,0 +1,10 @@
+FROM gemma:2b
+SYSTEM You are a unit test generator.
+
+# Training data file
+PARAMETER train_data ./fine_tune_data.txt
+
+# Fine-tuning parameters (adjust as needed)
+PARAMETER num_train_epochs 3
+PARAMETER learning_rate 0.0001
+PARAMETER batch_size 4
